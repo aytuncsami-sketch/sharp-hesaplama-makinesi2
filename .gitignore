@@ -1,55 +1,78 @@
-# Prerequisites
-*.d
+#include <stdio.h>
+#include <stdlib.h>
+#include <locale.h> // setlocale fonksiyonu icin gereklidir
 
-# Object files
-*.o
-*.ko
-*.obj
-*.elf
+// Fonksiyon: Sharpe oranini hesaplar ve degerlendirir
+void hesapla_sharpe_orani(double getiri, double risksiz_oran, double standart_sapma) {
+    
+    // Standart sapma (risk) sifir veya negatif olamaz.
+    if (standart_sapma <= 0.0) {
+        printf("\nUYARI: Standart sapma sifir veya negatif olamaz. Hesaplama durduruldu.\n");
+        return;
+    }
 
-# Linker output
-*.ilk
-*.map
-*.exp
+    // Sharpe orani hesaplama
+    double sharpe_orani = (getiri - risksiz_oran) / standart_sapma;
 
-# Precompiled Headers
-*.gch
-*.pch
+    printf("\n--- FINANSAL ANALIZ SONUCLARI ---\n");
+    printf("Portfoy Getirisi (Rp):    %.4lf (%%%.2lf)\n", getiri, getiri * 100);
+    printf("Risksiz Faiz Orani (Rf):  %.4lf (%%%.2lf)\n", risksiz_oran, risksiz_oran * 100);
+    printf("Standart Sapma (Risk):    %.4lf (%%%.2lf)\n", standart_sapma, standart_sapma * 100);
+    printf("-----------------------------------\n");
+    printf("HESAPLANAN SHARPE ORANI:  %.4lf\n", sharpe_orani);
+    printf("-----------------------------------\n");
 
-# Libraries
-*.lib
-*.a
-*.la
-*.lo
+    // Degerlendirme
+    printf("DEGERLENDIRME:\n");
+    if (sharpe_orani >= 2.0) {
+        printf("-> MUKEMMEL/COK IYI: Riske gore ayarlanmis getiri cok yuksek. (Sharpe >= 2)\n");
+    } else if (sharpe_orani >= 1.0) {
+        printf("-> IYI: Riske gore ayarlanmis getirisi kabul edilebilir duzeydedir. (1 <= Sharpe < 2)\n");
+    } else if (sharpe_orani >= 0.0) {
+        printf("-> ZAYIF: Portfoy, alinan risk icin risksiz faiz oranindan yeterli ekstra getiri saglayamiyor. (0 <= Sharpe < 1)\n");
+    } else {
+        printf("-> NEGATIF: Yatirim, risksiz faiz oranindan bile daha dusuk getiri sagliyor. (Sharpe < 0)\n");
+    }
+}
 
-# Shared objects (inc. Windows DLLs)
-*.dll
-*.so
-*.so.*
-*.dylib
+int main() {
+    // Tum girdi ve cikti islemlerini (I/O) C dilinin standart (Ingilizce) 
+    // ayarlarina zorla. Bu, ondalik ayirici olarak nokta kullanilmasini saglar.
+    setlocale(LC_NUMERIC, "C"); 
 
-# Executables
-*.exe
-*.out
-*.app
-*.i*86
-*.x86_64
-*.hex
+    double portfoy_getirisi, risksiz_faiz_orani, portfoy_standart_sapmasi;
 
-# Debug files
-*.dSYM/
-*.su
-*.idb
-*.pdb
+    printf("--- NICEL ANALIZ: SHARPE ORANI HESAPLAYICISI ---\n");
+    printf("Lutfen tum degerleri ondalik olarak ve ondalik nokta (.) kullanarak giriniz.\n");
+    
+    // Portfoy Getirisi
+    printf("\n1. Portfoy Getirisi (Orn: 0.15): ");
+    if (scanf("%lf", &portfoy_getirisi) != 1) {
+        printf("\n!!! HATA: Gecersiz Portfoy Getirisi girisi yapildi. Program sonlandiriliyor.\n");
+        return 1;
+    }
 
-# Kernel Module Compile Results
-*.mod*
-*.cmd
-.tmp_versions/
-modules.order
-Module.symvers
-Mkfile.old
-dkms.conf
+    // Risksiz Faiz Orani
+    printf("2. Risksiz Faiz Orani (Orn: 0.05): ");
+    if (scanf("%lf", &risksiz_faiz_orani) != 1) {
+        printf("\n!!! HATA: Gecersiz Risksiz Faiz Orani girisi yapildi. Program sonlandiriliyor.\n");
+        return 1;
+    }
+    
+    // Standart Sapma
+    printf("3. Portfoyun Standart Sapmasi (Risk) (Orn: 0.12): ");
+    if (scanf("%lf", &portfoy_standart_sapmasi) != 1) {
+        printf("\n!!! HATA: Gecersiz Standart Sapma girisi yapildi. Program sonlandiriliyor.\n");
+        return 1;
+    }
 
-# debug information files
-*.dwo
+    // Hesaplama fonksiyonunu cagir
+    hesapla_sharpe_orani(portfoy_getirisi, risksiz_faiz_orani, portfoy_standart_sapmasi);
+
+    // Konsolun kapanmamasi icin bekleme
+    printf("\nDevam etmek icin bir tusa basin...");
+    while (getchar() != '\n');
+    getchar(); 
+
+    return 0;
+}
